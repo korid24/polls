@@ -10,6 +10,8 @@ INSTALLED_APPS = [
 ]
 
 LOCAL_APPS = [
+    'apps.core',
+    'apps.polls',
     'apps.users',
 ]
 
