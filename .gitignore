@@ -1,0 +1,8 @@
+**/client/build
+**/server/staticfiles
+**/server/media
+.idea
+*.log
+*.pyc
+**/__pycache__/
+/pg_data
