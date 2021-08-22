@@ -15,7 +15,7 @@ services:
       depends_on:
         - db
       environment:
-        DEBUG: 'True'
+        DEBUG: 'False'
         DATABASE_URL: 'postgres://postgres:postgres@db:5432/postgres'
         SECRET_KEY: "87!^h6qwybfya*g#7wn2!6kq)_0m3gz57*b4#*)!+opey3yek*"
 
