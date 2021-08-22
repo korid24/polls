@@ -1,0 +1,814 @@
+openapi: 3.0.2
+servers:
+  - description: API
+    url: http://site-url/api
+info:
+  title: polls
+  version: 0.1.0
+
+tags:
+  - name: auth
+    description: "Auth section"
+  - name: surveys
+    description: "Surveys section"
+  - name: questions
+    description: "Questions section" 
+  - name: answer-choices
+    description: "Answer choice section"
+  - name: answers
+    description: "Answers section"
+
+paths:
+####################################################################################################
+### AUTH SECTION
+####################################################################################################
+  /auth/token/obtain/:
+    post:
+      tags:
+        - auth
+      summary: "Получение токена для авторизации"
+      requestBody:
+        $ref: '#/components/requestBodies/TokenObtain'
+      responses:
+        200:
+          $ref: '#/components/responses/TokenObtain200'
+        400:
+          description: "Bad request"
+  /auth/token/refresh/:
+    post:
+      tags:
+        - auth
+      summary: "Обновление токена для авторизации"
+      requestBody:
+        $ref: '#/components/requestBodies/TokenRefresh'
+      responses:
+        200:
+          $ref: '#/components/responses/TokenRefresh200'
+        400:
+          description: "Bad request"
+####################################################################################################
+### SURVEY SECTION
+####################################################################################################
+  /polls/surveys/:
+    get:
+      tags:
+        - surveys
+      summary: "Список опросов"
+      description: "Список опросов - для не Адимнов показывает только активные опросы"
+      responses:
+        200:
+          $ref: '#/components/responses/SurveyList200'
+    post:
+      tags:
+        - surveys
+      summary: "Создание опросв"
+      description: "Доступен только Админам"
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/SurveyCreate'
+      responses:
+        200:
+          $ref: '#/components/responses/SurveyCreate201'
+        401:
+          description: "Unauthorized"
+        403:
+          description: "Forbidden"
+
+  /polls/surveys/{survey_id}/:
+    get:
+      tags:
+        - surveys
+      summary: "Детальныя информация о пройденном опросе"
+      description: "Детальная информация о пройденном опросе доступна только для зарегестрированных не Админов"
+      parameters:
+        - name: survey_id
+          in: path
+          schema:
+            type: number
+          required: true
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          $ref: '#/components/responses/SurveyRetrieve200'
+        401:
+          description: "Unauthorized"
+        403:
+          description: "Forbidden"
+        404:
+          description: "Not found"
+    put:
+      tags:
+        - surveys
+      summary: "Обновление информации об опросе"
+      description: "Обновление информации об опросе доступно только админам"
+      parameters:
+        - name: survey_id
+          in: path
+          schema:
+            type: number
+          required: true
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/SurveyUpdate'
+      responses:
+        200:
+          $ref: '#/components/responses/SurveyUpdate200'
+        401:
+          description: "Unauthorized"
+        403:
+          description: "Forbidden"
+        404:
+          description: "Not found"
+    patch:
+      tags:
+        - surveys
+      summary: "Частичное обновление информации об опросе"
+      description: "Частичное обновление информации об опросе доступно только админам"
+      parameters:
+        - name: survey_id
+          in: path
+          schema:
+            type: number
+          required: true
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/SurveyUpdate'
+      responses:
+        200:
+          $ref: '#/components/responses/SurveyUpdate200'
+        401:
+          description: "Unauthorized"
+        403:
+          description: "Forbidden"
+        404:
+          description: "Not found"
+    delete:
+      tags:
+        - surveys
+      summary: "Удаление опроса"
+      description: "Удаление опроса доступно только админам"
+      parameters:
+        - name: survey_id
+          in: path
+          schema:
+            type: number
+          required: true
+      security:
+        - bearerAuth: [ ]
+      responses:
+        204:
+          description: "No content"
+        401:
+          description: "Unauthorized"
+        403:
+          description: "Forbidden"
+        404:
+          description: "Not found"
+
+  /polls/surveys/passed-surveys/:
+    get:
+      tags:
+        - surveys
+      summary: "Список пройденных опросов"
+      description: "Список пройденных опросов доступно только авторизованным неадминам"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        200:
+          $ref: '#/components/responses/SurveyList200'
+        401:
+          description: "Unauthorized"
+        403:
+          description: "Forbidden"
+####################################################################################################
+### QUESTION SECTION
+####################################################################################################
+  /polls/questions/:
+    get:
+      tags:
+        - questions
+      summary: "Cписок вопросов с возможностью фильтрации по опросу"
+      parameters:
+        - in: query
+          name: survey_id
+          schema:
+            type: integer
+          description: Survey id
+          required: false
+      responses:
+        200:
+          $ref: '#/components/responses/QuestionList200'
+    post:
+      tags:
+        - questions
+      summary: "Слздание опроса"
+      description: "Создание опроса доступно только админу"
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/QuestionCreate'
+      responses:
+        201:
+          $ref: '#/components/responses/QuestionCreate201'
+        400:
+          description: "Bad request"
+        401:
+          description: "Anuthorized"
+        403:
+          description: "Forbidden"
+  
+  /polls/questions/{question_id}/:
+    get:
+      tags:
+        - questions
+      summary: "Детальная информация по вопросу"
+      parameters:
+        - in: path
+          name: question_id
+          schema:
+            type: integer
+          description: Question id
+          required: true
+      responses:
+        200:
+          $ref: '#/components/responses/QuestionRetrieve200'
+    put:
+      tags:
+        - questions
+      summary: "Полное обновление информации по вопросу"
+      description: "Полное обновление информации по вопросу доступно только админу"
+      parameters:
+        - in: path
+          name: question_id
+          schema:
+            type: integer
+          description: Question id
+          required: true
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/QuestionCreate'
+      responses:
+        200:
+          $ref: '#/components/responses/QuestionUpdate200'
+        400:
+          description: "Bad request"
+        401:
+          description: "Anuthorized"
+        403:
+          description: "Forbidden"
+    patch:
+      tags:
+        - questions
+      summary: "Частичное обновление информации по вопросу"
+      description: "Частичное обновление информации по вопросу доступно только админу"
+      parameters:
+        - in: path
+          name: question_id
+          schema:
+            type: integer
+          description: Question id
+          required: true
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/QuestionCreate'
+      responses:
+        200:
+          $ref: '#/components/responses/QuestionUpdate200'
+        400:
+          description: "Bad request"
+        401:
+          description: "Anuthorized"
+        403:
+          description: "Forbidden"
+    delete:
+      tags:
+        - questions
+      summary: "Удаление вопроса"
+      description: "Удаление вопроса доступно только админу"
+      parameters:
+        - in: path
+          name: question_id
+          schema:
+            type: integer
+          description: Question id
+          required: true
+      security:
+        - bearerAuth: []
+      responses:
+        204:
+          description: "No content"
+        400:
+          description: "Bad request"
+        401:
+          description: "Anuthorized"
+        403:
+          description: "Forbidden"
+####################################################################################################
+### ANSWER CHOICE SECTION
+####################################################################################################
+  /polls/answer-choices/:
+    post:
+      tags:
+        - answer-choices
+      summary: "Добавление варианта ответа"
+      description: "Добавление варианта ответа доступно только админу"
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AnswerChoiceCreate'
+      responses:
+        201:
+          $ref: '#/components/responses/AnswerChoiceCreate201'
+        400:
+          description: "Bad request"
+        401:
+          description: "Anuthorized"
+        403:
+          description: "Forbidden"
+  
+  /polls/answer-choices/{answer_choice_id}/:
+    put:
+      tags:
+        - answer-choices
+      summary: "Полное обновление варианта ответа"
+      description: "Полное обновление варианта ответа доступно только админу"
+      parameters:
+        - in: path
+          name: answer_choice_id
+          description: Answer choice id
+          schema:
+            type: integer
+          required: true
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AnswerChoiceCreate'
+      responses:
+        200:
+          $ref: '#/components/responses/AnswerChoiceUpdate200'
+        400:
+          description: "Bad request"
+        401:
+          description: "Anuthorized"
+        403:
+          description: "Forbidden"
+    patch:
+      tags:
+        - answer-choices
+      summary: "Частичное обновление варианта ответа"
+      description: "Частичное обновление варианта ответа доступно только админу"
+      parameters:
+        - in: path
+          name: answer_choice_id
+          description: Answer choice id
+          schema:
+            type: integer
+          required: true
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AnswerChoiceCreate'
+      responses:
+        200:
+          $ref: '#/components/responses/AnswerChoiceUpdate200'
+        400:
+          description: "Bad request"
+        401:
+          description: "Anuthorized"
+        403:
+          description: "Forbidden"
+    delete:
+      tags:
+        - answer-choices
+      summary: "Удаление варианта ответа"
+      description: "Удаление варианта ответа доступно только админу"
+      parameters:
+        - in: path
+          name: answer_choice_id
+          description: Answer choice id
+          schema:
+            type: integer
+          required: true
+      security:
+        - bearerAuth: []
+      responses:
+        204:
+          description: "No content"
+        400:
+          description: "Bad request"
+        401:
+          description: "Anuthorized"
+        403:
+          description: "Forbidden"
+####################################################################################################
+### ANSWER SECTION
+####################################################################################################
+  /polls/answers/:
+    post:
+      tags:
+          - answers
+      summary: "Создание ответа"
+      description: "Создание ответа доступно только не админу"
+      requestBody:
+        $ref: '#/components/requestBodies/AnswerCreate'
+      responses:
+        201:
+          $ref: '#/components/responses/AnswerCreate201'
+        400:
+          description: "Bad request"
+        403:
+          description: "Forbidden"
+
+  /polls/answers/{answer_id}/:
+    put:
+      tags:
+        - answers
+      summary: "Полное обновление ответа"
+      description: "Полное обновление ответа доступно только админу"
+      parameters:
+        - in: path
+          name: answer_id
+          description: Answer id
+          schema:
+            type: integer
+          required: true
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AnswerCreate'
+      responses:
+        200:
+          $ref: '#/components/responses/AnswerUpdate200'
+        400:
+          description: "Bad request"
+        403:
+          description: "Forbidden"
+    patch:
+      tags:
+        - answers
+      summary: "Частичное обновление ответа"
+      description: "Частичное обновление ответа доступно только админу"
+      parameters:
+        - in: path
+          name: answer_id
+          description: Answer id
+          schema:
+            type: integer
+          required: true
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AnswerCreate'
+      responses:
+        200:
+          $ref: '#/components/responses/AnswerUpdate200'
+        400:
+          description: "Bad request"
+        403:
+          description: "Forbidden"
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+
+  schemas:
+    TokenObtainRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    TokenRefreshResponse:
+      type: object
+      properties:
+        access:
+          type: string
+        refresh:
+          type: string
+
+    TokenObtainResponse:
+      allOf:
+        - $ref: '#/components/schemas/TokenRefreshResponse'
+        - type: object
+          properties:
+            role:
+              type: string
+              enum: ["admin", "user"]
+
+    SurveyBase:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+    SurveyUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        end_date:
+          type: string
+          format: date
+
+    SurveyCreate:
+      allOf:
+        - $ref: '#/components/schemas/SurveyUpdate'
+        - type: object
+          properties:
+            start_date:
+              type: string
+              format: date
+
+    SurveyListItem:
+      allOf:
+        - $ref: '#/components/schemas/SurveyBase'
+        - $ref: '#/components/schemas/SurveyCreate'
+
+    PassedSurveyRetrieve:
+      allOf:
+        - $ref: '#/components/schemas/SurveyListItem'
+        - type: object
+          properties:
+            questions:
+              type: array
+              items:
+                $ref: '#/components/schemas/PassedSurveyQuestionListItem'
+
+    QuestionListItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+    
+    QuestionCreateRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        survey:
+          type: integer
+        question_type:
+          type: string
+          enum: ["free", "single_choice", "multiply_choices"]
+
+    QuestionCreateResponse:
+      allOf:
+        - $ref: '#/components/schemas/QuestionListItem'
+        - $ref: '#/components/schemas/QuestionCreateRequest'
+
+    QuestionRetrieve:
+      allOf:
+        - $ref: '#/components/schemas/QuestionCreateResponse'
+        - type: object
+          properties:
+            survey:
+              $ref: '#/components/schemas/SurveyBase'
+            answer_choices:
+              type: array
+              items:
+                $ref: '#/components/schemas/AnswerChoiceListItem'
+
+    PassedSurveyQuestionListItem:
+      allOf:
+        - $ref: '#/components/schemas/QuestionListItem'
+        - type: object
+          properties:
+            question_type:
+              type: string
+              enum: ["free", "single_choice", "multiply_choices"]
+            answers:
+              type: array
+              items:
+                $ref: '#/components/schemas/PassedSurveyAnswerListItem'            
+
+    AnswerChoiceListItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+
+    AnswerChoiceCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        question:
+          type: integer
+
+    AnswerChoiceCreateResponse:
+      allOf:
+        - $ref: '#/components/schemas/AnswerChoiceListItem'
+        - $ref: '#/components/schemas/AnswerChoiceCreateRequest'
+
+    PassedSurveyAnswerListItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        text_answer:
+          type: string
+          nullable: true
+        choice_answers:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnswerChoiceListItem'
+
+    AnswerCreateRequest:
+      type: object
+      properties:
+        question:
+          type: integer
+        text_answer:
+          type: string
+          nullable: true
+        choice_answers:
+          type: array
+          items:
+            type: integer
+
+    AnswerCreateResponse:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+        - $ref: '#/components/schemas/AnswerCreateRequest'
+
+  requestBodies:
+    TokenObtain:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TokenObtainRequest'
+      required: true
+
+    TokenRefresh:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              refresh:
+                type: string
+      required: true
+
+    SurveyCreate:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SurveyCreate'
+      required: true
+
+    SurveyUpdate:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SurveyUpdate'
+      required: true
+
+    QuestionCreate:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/QuestionCreateRequest'
+      required: true
+
+    AnswerChoiceCreate:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AnswerChoiceCreateRequest'
+      required: true
+
+    AnswerCreate:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AnswerCreateRequest'
+      required: true
+
+  responses:
+    TokenObtain200:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TokenObtainResponse'
+
+    TokenRefresh200:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TokenRefreshResponse'
+
+    SurveyCreate201:
+      description: "Created"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SurveyListItem'
+
+    SurveyUpdate200:
+      description: "Created"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/SurveyBase'
+              - $ref: '#/components/schemas/SurveyUpdate'
+
+    SurveyList200:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/SurveyListItem'
+
+    SurveyRetrieve200:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PassedSurveyRetrieve'
+
+    QuestionList200:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/QuestionListItem'
+
+    QuestionCreate201:
+      description: "Created"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/QuestionCreateResponse'
+
+    QuestionUpdate200:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/QuestionCreateResponse'
+
+    QuestionRetrieve200:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/QuestionRetrieve'
+
+    AnswerChoiceCreate201:
+      description: "Created"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AnswerChoiceCreateResponse'
+
+    AnswerChoiceUpdate200:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AnswerChoiceCreateResponse'
+
+    AnswerCreate201:
+      description: "Created"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AnswerCreateResponse'
+
+    AnswerUpdate200:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AnswerCreateResponse'

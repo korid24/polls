@@ -36,13 +36,16 @@ class AnswerCreateSerializer(serializers.ModelSerializer):
         fields = ('id', 'question', 'text_answer', 'choice_answers')
 
     def to_internal_value(self, data: dict) -> dict:
-        data.setdefault('text_answer', None)
-        data.setdefault('choice_answers', [])
-
         if self.partial:
             data.setdefault('question', self.instance.question.id)
             data.setdefault('text_answer', self.instance.text_answer)
-            data.setdefault('choice_answers', self.instance.choice_answers)
+            data.setdefault(
+                'choice_answers',
+                self.instance.choice_answers.values_list('id', flat=True),
+            )
+
+        data.setdefault('text_answer', None)
+        data.setdefault('choice_answers', [])
 
         return super().to_internal_value(data)
 
