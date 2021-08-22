@@ -2,6 +2,8 @@ from typing import Final
 
 from django.db import models
 
+from .managers import QuestionManager
+
 
 class Question(models.Model):
     class QuestionTypes:
@@ -28,6 +30,8 @@ class Question(models.Model):
         max_length=16,
         choices=QuestionTypes.CHOICES,
     )
+
+    objects = QuestionManager()
 
     class Meta:
         verbose_name = 'Вопрос'

@@ -3,13 +3,8 @@ from typing import Final, Any
 
 from rest_framework import serializers
 
-from ..models import Survey
-
-
-class SurveyBaseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Survey
-        fields = ('id', 'name')
+from .base import SurveyBaseSerializer
+from .question import PassedSurveyQuestionSerializer
 
 
 class SurveyUpdateSerializer(SurveyBaseSerializer):
@@ -35,3 +30,10 @@ class SurveySerializer(SurveyUpdateSerializer):
             raise serializers.ValidationError({'end_date': self.Errors.WRONG_END_DATE})
 
         return attrs
+
+
+class SurveyRetrieveSerializer(SurveySerializer):
+    questions = PassedSurveyQuestionSerializer(many=True)
+
+    class Meta(SurveySerializer.Meta):
+        fields = SurveySerializer.Meta.fields + ('questions',)

@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
 from .answer_choice import AnswerChoiceListSerializer
-from .survey import SurveyBaseSerializer
+from .answer import PassedSurveyAnswerSerializer
+from .base import SurveyBaseSerializer
 from ..models import Question
 
 
@@ -22,3 +23,10 @@ class QuestionRetrieveSerializer(QuestionCreateSerializer):
 
     class Meta(QuestionCreateSerializer.Meta):
         fields = QuestionCreateSerializer.Meta.fields + ('answer_choices',)
+
+
+class PassedSurveyQuestionSerializer(QuestionListSerializer):
+    answers = PassedSurveyAnswerSerializer(many=True)
+
+    class Meta(QuestionListSerializer.Meta):
+        fields = QuestionListSerializer.Meta.fields + ('question_type', 'answers')

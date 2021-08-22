@@ -1,5 +1,7 @@
 from django.db import models
 
+from .managers import SurveyManager
+
 
 class Survey(models.Model):
     name = models.CharField(
@@ -15,6 +17,8 @@ class Survey(models.Model):
     description = models.TextField(
         verbose_name='Описание',
     )
+
+    objects = SurveyManager()
 
     class Meta:
         verbose_name = 'Опрос'

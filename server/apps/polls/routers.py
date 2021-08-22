@@ -1,6 +1,6 @@
 from rest_framework import routers
 
-from .viewsets import AnswerChoiceViewSet, QuestionViewSet, SurveyViewSet
+from .viewsets import AnswerViewSet, AnswerChoiceViewSet, QuestionViewSet, SurveyViewSet
 
 
 polls_router = routers.DefaultRouter()
@@ -19,4 +19,9 @@ polls_router.register(
     prefix='answer-choices',
     viewset=AnswerChoiceViewSet,
     basename='answer_choices',
+)
+polls_router.register(
+    prefix='answers',
+    viewset=AnswerViewSet,
+    basename='answers',
 )

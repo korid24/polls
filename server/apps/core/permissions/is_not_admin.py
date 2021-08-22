@@ -1,8 +1,8 @@
 from django.views import View
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 
 
-class IsNotAdminUser(IsAuthenticated):
+class IsNotAdminUser(BasePermission):
     def has_permission(self, request: Request, view: View) -> bool:
-        return super().has_permission(request, view) and not request.user.is_staff
+        return not (request.user.is_authenticated and request.user.is_staff)
