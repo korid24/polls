@@ -7,7 +7,6 @@ class Survey(models.Model):
         verbose_name='Название',
     )
     start_date = models.DateField(
-        editable=False,
         verbose_name='Дата начала',
     )
     end_date = models.DateField(

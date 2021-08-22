@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=127, verbose_name='Название')),
-                ('start_date', models.DateField(editable=False, verbose_name='Дата начала')),
+                ('start_date', models.DateField(verbose_name='Дата начала')),
                 ('end_date', models.DateField(verbose_name='Дата окончания')),
                 ('description', models.TextField(verbose_name='Описание')),
             ],
